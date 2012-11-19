@@ -38,5 +38,10 @@
     "expect.js": "0.2.0",
     "grunt-mocha-test": "0.0.1"
   },
-  "keywords": []
+  "keywords": [
+    "daemon",
+    "spawn",
+    "child_process",
+    "pty"
+  ]
 }
