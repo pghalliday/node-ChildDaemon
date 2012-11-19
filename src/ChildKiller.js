@@ -1,6 +1,5 @@
 var util = require('util'),
-    EventEmitter = require('events').EventEmitter,
-    spawn = require('child_process').spawn;
+    EventEmitter = require('events').EventEmitter;
 
 function ChildKiller(command, args, match) {
   var self = this,
@@ -17,10 +16,45 @@ function ChildKiller(command, args, match) {
       self.emit('start', new Error('child already started'));
     } else {
       var stdoutData = '';
-      var stdout;
-      
-      child = spawn(command, args);
-      child.on('exit', function(code, signal) {
+      var onData;
+      var checkMatch = function() {
+        var matched = match.exec(stdoutData);
+        if (matched && !started) {
+          started = true;
+          self.emit('start', null, matched);
+        }
+        return started;
+      };
+
+      if (process.platform === 'win32') {
+        var spawn = require('child_process').spawn;
+        child = spawn(command, args);
+        child.stdout.setEncoding();
+        child.stderr.setEncoding();
+        onData = function(data) {
+          stdoutData += data.toString();
+          if (checkMatch()) {
+            child.stdout.removeListener('data', onData);
+            child.stderr.removeListener('data', onData);
+          }
+        };
+        child.stdout.on('data', onData);
+        child.stderr.on('data', onData);
+      } else {
+        // use pty to make sure the output of the spawned process is not buffered
+        var pty = require('pty.js');
+        child = pty.spawn(command, args);
+        child.setEncoding();
+        onData = function(data) {
+          stdoutData += data.toString();
+          if (checkMatch()) {
+            child.removeListener('data', onData);
+          }
+        };
+        child.on('data', onData);
+      }
+
+      child.on('exit', function() {
         child = null;
         if (!started) {
           self.emit('start', new Error('child failed to start:\n' + stdoutData));
@@ -29,22 +63,6 @@ function ChildKiller(command, args, match) {
           self.emit('stop');
         }
       });
-
-      // monitor both stdout and stderr for the match expression
-      child.stdout.setEncoding();
-      child.stderr.setEncoding();
-      var onData = function(data) {
-        stdoutData += data.toString();
-        var matched = match.exec(stdoutData);
-        if (matched && !started) {
-          started = true;
-          child.stdout.removeListener('data', onData);
-          child.stderr.removeListener('data', onData);
-          self.emit('start', null, matched);
-        }
-      };
-      child.stdout.on('data', onData);
-      child.stderr.on('data', onData);
     }
   };
   

@@ -89,4 +89,8 @@ describe('ChildKiller', function() {
       }
     });
   });
+
+  it.skip('should work with processes that buffer output when no tty', function(done) {
+    done();
+  });
 });
