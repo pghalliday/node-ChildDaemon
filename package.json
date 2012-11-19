@@ -1,8 +1,8 @@
 {
-  "name": "ChildKiller",
-  "description": "Parents should kill their children when they die - parent processes that is ;)",
+  "name": "child-daemon",
+  "description": "Start and stop child daemon processes without cutting them loose",
   "version": "0.0.0",
-  "homepage": "https://github.com/pghalliday/ChildKiller.git",
+  "homepage": "https://github.com/pghalliday/node-ChildDaemon.git",
   "author": {
     "name": "Peter Halliday",
     "email": "pghalliday@gmail.com",
@@ -10,18 +10,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/pghalliday/ChildKiller.git"
+    "url": "git://github.com/pghalliday/node-ChildDaemon.git"
   },
   "bugs": {
-    "url": "https://github.com/pghalliday/ChildKiller/issues"
+    "url": "https://github.com/pghalliday/node-ChildDaemon/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/pghalliday/ChildKiller/blob/master/LICENSE-MIT"
+      "url": "https://github.com/pghalliday/node-ChildDaemon/blob/master/LICENSE-MIT"
     }
   ],
-  "main": "src/index.js",
+  "main": "src/ChildDaemon.js",
   "engines": {
     "node": ">= 0.8.12"
   },

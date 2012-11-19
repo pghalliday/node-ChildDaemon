@@ -1,7 +1,7 @@
 var util = require('util'),
     EventEmitter = require('events').EventEmitter;
 
-function ChildKiller(command, args, match) {
+function ChildDaemon(command, args, match) {
   var self = this,
       started = false,
       child;
@@ -76,6 +76,6 @@ function ChildKiller(command, args, match) {
     }
   };
 }
-util.inherits(ChildKiller, EventEmitter);
+util.inherits(ChildDaemon, EventEmitter);
 
-module.exports = ChildKiller;
+module.exports = ChildDaemon;
