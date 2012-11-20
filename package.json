@@ -1,7 +1,7 @@
 {
   "name": "child-daemon",
   "description": "Start and stop child daemon processes without cutting them loose",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "homepage": "https://github.com/pghalliday/node-ChildDaemon.git",
   "author": {
     "name": "Peter Halliday",

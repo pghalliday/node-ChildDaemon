@@ -49,7 +49,7 @@ childDaemon.start(function(error, matched) {
 
 ## Roadmap
 
-- List backlog items
+- stop method should work on windows too!
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using ``./grunt.sh`` or ``.\grunt.bat``.
