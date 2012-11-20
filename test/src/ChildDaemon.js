@@ -91,6 +91,11 @@ describe('ChildDaemon', function() {
   });
 
   it.skip('should work with processes that buffer output when no tty', function(done) {
+    // TODO: i know some programs that do this (eg. ruby) but not sure
+    // how to integrate the test. For now i am leaving this with the knowledge
+    // that the use of pty.js fixes the problem (it is only a problem on *.nix
+    // systems afaik) and I have tested it outside of these tests - at the moment i do
+    // not want to make the tests dependent on other programs though
     done();
   });
 });

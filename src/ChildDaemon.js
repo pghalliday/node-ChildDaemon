@@ -28,8 +28,7 @@ function ChildDaemon(command, args, match) {
 
       if (process.platform === 'win32') {
         var spawn = require('child_process').spawn;
-        // use CMD to make sure the output of the spawned process is not buffered
-        child = spawn('CMD', ['/S', '/C', command].concat(args));
+        child = spawn(command, args);
         child.stdout.setEncoding();
         child.stderr.setEncoding();
         onData = function(data) {

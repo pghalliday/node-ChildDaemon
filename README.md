@@ -9,7 +9,8 @@ Start and stop child daemon processes without cutting them loose
 - should error if an invalid child is specified
 - should error if stopped before started
 - should error if started when already running
-- should work with processes that buffer output when no tty
+- should work with processes that buffer output when there is no tty
+- should support windows and *nix systems
 
 ## Installation
 
@@ -49,7 +50,7 @@ childDaemon.start(function(error, matched) {
 
 ## Roadmap
 
-- stop method should work on windows too!
+- nothing yet
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using ``./grunt.sh`` or ``.\grunt.bat``.
