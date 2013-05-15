@@ -33,6 +33,7 @@ describe('ChildDaemon', function() {
               }
             });
           });
+          response.resume();
         }).on('error', function(error) {
           expect().fail('Error encountered communicating with child:\n' + error);
         });
