@@ -28,10 +28,9 @@
   "scripts": {
     "test": "grunt"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "optionalDependencies": {
-    "pty.js": "~0.2.2"
+    "pty.js": "^0.3.1"
   },
   "devDependencies": {
     "grunt": "0.3.17",
