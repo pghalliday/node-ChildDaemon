@@ -1,99 +1,101 @@
-var util = require('util'),
-    EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('events');
 
-function ChildDaemon(command, args, match) {
-  var self = this,
-      started = false,
-      child;
-
-  function killChild() {
-    child.kill();
+module.exports = class ChildDaemon extends EventEmitter {
+  constructor(command, args, match) {
+    super();
+    this._command = command;
+    this._args = args;
+    this._match = match;
+    this._started = false;
+    this._child = undefined;
+    this._stdoutData = '';
+    this._onExit = this._onExit.bind(this);
+    try {
+      // if pty.js is not installed then this will throw an error (and it
+      // should mean we are on windows)
+      this._pty = require('pty.js');
+      this._start = this._ptyStart;
+    } catch (error) {
+      if (process.platform !== 'win32') {
+        // on non windows platforms log a warning to watch out for output buffering
+        console.warn('pty.js not found and not on windows - ouput buffering may prevent proper detection of a correctly started process');
+      }
+      this._spawn = require('child_process').spawn;
+      this._start = this._spawnStart;
+    }
   }
 
-  self.start = function(callback) {
-    self.once('start', callback);
-    if (started) {
-      self.emit('start', new Error('child already started'));
+  _checkMatch() {
+    const matched = this._match.exec(this._stdoutData);
+    if (matched && !this._started) {
+      this._started = true;
+      this.emit('start', matched);
+    }
+    return this._started;
+  }
+
+  _onExit(error) {
+    this._child = null;
+    if (!this._started) {
+      this.emit('error', new Error('child failed to start:\n' + this._stdoutData));
     } else {
-      var stdoutData = '';
-      var onData;
-      var checkMatch = function() {
-        var matched = match.exec(stdoutData);
-        if (matched && !started) {
-          started = true;
-          self.emit('start', null, matched);
-        }
-        return started;
-      };
+      this._started = false;
+      this.emit('stop');
+    }
+  }
 
-      var pty;
-      try {
-        // if pty.js is not installed then this will throw an error (and it
-        // should mean we are on windows)
-        pty = require('pty.js');
-      } catch (error) {
-        if (process.platform !== 'win32') {
-          // on non windows platforms log a warning to watch out for output buffering
-          console.warn('pty.js not found and not on windows - ouput buffering may prevent proper detection of a correctly started process');
-        }
+  _ptyStart() {
+    this._child = this._pty.spawn(this._command, this._args);
+    this._child.setEncoding();
+    const onData = data => {
+      this._stdoutData += data.toString();
+      if (this._checkMatch()) {
+        this._child.removeListener('data', onData);
       }
+    };
+    this._child.on('data', onData);
+    this._child.on('exit', this._onExit);
+  }
 
-      var onExit = function(error) {
-        child = null;
-        if (!started) {
-          self.emit('start', new Error('child failed to start:\n' + stdoutData));
-        } else {
-          started = false;
-          self.emit('stop');
-        }
-      };
+  _spawnStart() {
+    this._child = this._spawn(this._command, this._args);
+    this._child.stdout.setEncoding();
+    this._child.stderr.setEncoding();
+    const onData = data => {
+      this._stdoutData += data.toString();
+      if (this._checkMatch()) {
+        this._child.stdout.removeListener('data', onData);
+        this._child.stderr.removeListener('data', onData);
+        this._child.removeListener('error', this._onExit);
+      }
+    };
+    this._child.stdout.on('data', onData);
+    this._child.stderr.on('data', onData);
+    this._child.on('error', this._onExit);
+    this._child.on('exit', this._onExit);
+  }
 
-      if (pty) {
-        // use pty to make sure the output of the spawned process is not buffered
-        child = pty.spawn(command, args);
-        child.setEncoding();
-        onData = function(data) {
-          stdoutData += data.toString();
-          if (checkMatch()) {
-            child.removeListener('data', onData);
-          }
-        };
-        child.on('data', onData);
+  start() {
+    return new Promise((resolve, reject) => {
+      this.once('error', reject);
+      this.once('start', resolve);
+      if (this._started) {
+        this.emit('error', new Error('child already started'));
       } else {
-        // Likely we are on windows and pty.js failed to install.
-        // Luckily on windows we don't have to worry about output buffering.
-        // If for some reason pty.js is not available on another platform
-        // that does buffer output then we may be in trouble.
-        var spawn = require('child_process').spawn;
-        child = spawn(command, args);
-        child.stdout.setEncoding();
-        child.stderr.setEncoding();
-        onData = function(data) {
-          stdoutData += data.toString();
-          if (checkMatch()) {
-            child.stdout.removeListener('data', onData);
-            child.stderr.removeListener('data', onData);
-            child.removeListener('error', onExit);
-          }
-        };
-        child.stdout.on('data', onData);
-        child.stderr.on('data', onData);
-        child.on('error', onExit);
+        this._start();
       }
+    });
+  }
 
-      child.on('exit', onExit);
-    }
-  };
-  
-  self.stop = function(callback) {
-    self.once('stop', callback);
-    if (!started) {
-      self.emit('stop', new Error('child not started'));
-    } else {
-      killChild();
-    }
-  };
+  stop() {
+    return new Promise((resolve, reject) => {
+      this.once('stop', resolve);
+      this.once('error', reject);
+      if (!this._started) {
+        this.emit('error', new Error('child not started'));
+      } else {
+        this._child.kill();
+      }
+    });
+  }
 }
-util.inherits(ChildDaemon, EventEmitter);
-
-module.exports = ChildDaemon;

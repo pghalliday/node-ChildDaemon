@@ -1,7 +1,7 @@
-var http = require('http');
-var port = process.argv[2];
-var server = http.createServer(function(request, response) {
-  response.end();
+const http = require('http');
+const port = process.argv[2];
+const server = http.createServer((request, response) => {
+  response.end('hello');
 });
 server.listen(port, function() {
   console.log('Listening on port ' + port);

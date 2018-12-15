@@ -29,31 +29,26 @@ var childDaemon = new ChildDaemon(
   new RegExp(regexString) // regular expression which when matched to ouput from stdout or stderr will indicate that the daemon has started and is ready 
 );
 
-childDaemon.start(function(error, matched) {
-  if (error) {
-    // Daemon failed to start, or exited before the regular expression was matched
-    console.log(error);
-  } else {
+childDaemon
+  .start()
+  .then(matched => {
     // Daemon started, the matched parameter will be the returned array from the matched regular expression
+    ...
 
-    childDaemon.stop(function(error) {
-      if (error) {
-        // Daemon failed to stop (perhaps the daemon is no longer running)
-        console.log(error)
-      } else {
-        // Daemon was stopped
-      }
-    });
-  }
-});
+    // stop the daemon
+    return childDaemon.stop();
+  })
+  .then(() => {
+    // Daemon was stopped
+  })
+  .catch(error => {
+    // Daemon failed to start or stop
+  });
 ```
 
 ## Roadmap
 
 - nothing yet
-
-## Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using ``./grunt.sh`` or ``.\grunt.bat``.
 
 ## License
 Copyright (c) 2012 Peter Halliday  

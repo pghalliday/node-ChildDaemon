@@ -1,12 +1,12 @@
 {
   "name": "child-daemon",
   "description": "Start and stop child daemon processes without cutting them loose",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "homepage": "https://github.com/pghalliday/node-ChildDaemon.git",
   "author": {
     "name": "Peter Halliday",
     "email": "pghalliday@gmail.com",
-    "url": "http://stuffpetedoes.blogspot.nl/"
+    "url": "https://pghalliday.com"
   },
   "repository": {
     "type": "git",
@@ -15,27 +15,21 @@
   "bugs": {
     "url": "https://github.com/pghalliday/node-ChildDaemon/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/pghalliday/node-ChildDaemon/blob/master/LICENSE-MIT"
-    }
-  ],
+  "license": "MIT",
   "main": "src/ChildDaemon.js",
-  "engines": {
-    "node": ">= 0.8.12"
-  },
   "scripts": {
-    "test": "grunt"
+    "test": "mocha test/src"
   },
   "dependencies": {},
   "optionalDependencies": {
     "pty.js": "^0.3.1"
   },
   "devDependencies": {
-    "grunt": "0.3.17",
-    "expect.js": "0.2.0",
-    "grunt-mocha-test": "0.0.1"
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^5.2.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5"
   },
   "keywords": [
     "daemon",
